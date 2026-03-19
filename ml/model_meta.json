@@ -1,0 +1,42 @@
+{
+  "accuracy": 0.8575,
+  "cv_accuracy_mean": 0.8531,
+  "cv_accuracy_std": 0.0091,
+  "n_samples": 8000,
+  "best_iteration": 170,
+  "features": [
+    "age",
+    "income_k",
+    "bmi",
+    "smoker",
+    "n_chronic_conditions",
+    "has_cancer_history",
+    "n_medications",
+    "annual_doctor_visits",
+    "has_dependents",
+    "n_dependents",
+    "mental_health_diagnosis",
+    "planned_surgery_12mo",
+    "wants_hsa",
+    "prefers_low_deductible",
+    "budget_monthly_usd",
+    "prefers_ppo",
+    "age_chronic_interaction",
+    "meds_per_condition",
+    "visits_per_condition",
+    "income_to_budget_ratio",
+    "high_risk",
+    "family_size"
+  ],
+  "plans": [
+    "nexus-basic",
+    "nexus-chronic",
+    "nexus-family",
+    "nexus-family-complete",
+    "nexus-hsa",
+    "nexus-plus",
+    "nexus-premium"
+  ],
+  "dataset": "MEPS-inspired synthetic (n=8000)",
+  "model": "XGBoost with early stopping"
+}
