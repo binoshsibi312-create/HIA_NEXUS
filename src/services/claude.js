@@ -7,32 +7,44 @@
 
 const GROQ_KEY = import.meta.env.VITE_GROQ_API_KEY
 const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY
-const GROQ_BASE = '/groq/openai/v1/chat/completions'
+const GROQ_BASE = 'https://api.groq.com/openai/v1/chat/completions'
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models'
 
-// ── Groq caller (OpenAI-compatible, CORS-friendly) ────────────────────────────
+// ── Groq caller — direct browser call, 15s timeout ──────────────────────────
 const callGroq = async (messages, systemPrompt, maxTokens = 1000) => {
-  const res = await fetch(GROQ_BASE, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages,
-      ],
-      max_tokens: maxTokens,
-      temperature: 0.4,
-    }),
-  })
-  if (!res.ok) {
-    const e = await res.json().catch(() => ({}))
-    throw new Error(e.error?.message || `Groq HTTP ${res.status}`)
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 15000) // 15s timeout
+
+  try {
+    const res = await fetch(GROQ_BASE, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages,
+        ],
+        max_tokens: maxTokens,
+        temperature: 0.4,
+      }),
+    })
+    clearTimeout(timeout)
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}))
+      throw new Error(e.error?.message || `Groq HTTP ${res.status}`)
+    }
+    const data = await res.json()
+    return data.choices?.[0]?.message?.content || ''
+  } catch (err) {
+    clearTimeout(timeout)
+    if (err.name === 'AbortError') throw new Error('Request timed out after 15 seconds')
+    throw err
   }
-  const data = await res.json()
-  return data.choices?.[0]?.message?.content || ''
 }
 
 // ── Gemini caller (direct, no proxy) ─────────────────────────────────────────

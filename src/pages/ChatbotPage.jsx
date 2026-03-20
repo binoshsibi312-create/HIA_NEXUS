@@ -51,11 +51,19 @@ export default function ChatbotPage() {
     await supabase.from('chat_messages').insert({ user_id: user.id, role: 'user', content }).catch(() => {})
     try {
       const reply = await chatWithAssistant(next, profile)
-      setMessages(p => [...p, { role: 'assistant', content: reply }])
-      await supabase.from('chat_messages').insert({ user_id: user.id, role: 'assistant', content: reply }).catch(() => {})
+      if (reply) {
+        setMessages(p => [...p, { role: 'assistant', content: reply }])
+        await supabase.from('chat_messages').insert({ user_id: user.id, role: 'assistant', content: reply }).catch(() => {})
+      } else {
+        throw new Error('Empty response')
+      }
     } catch (err) {
-      toast.error('Something went wrong. Try again.')
-      setMessages(p => p.slice(0, -1))
+      console.error('Chat error:', err.message)
+      const isTimeout = err.message?.includes('timed out')
+      const fallbackMsg = isTimeout
+        ? "I'm taking longer than usual to respond. This can happen with the free API tier. Please try sending your message again — I'll respond with my built-in knowledge instantly."
+        : "I couldn't connect to the AI right now. Here's what I can help with using my built-in knowledge:\n\n- Ask about any specific plan: **'Tell me about Aarogya Plus'**\n- Compare plans: **'Compare all plans'**\n- Insurance terms: **'What is a deductible?'**\n- Tax benefits: **'How does Section 80D work?'**"
+      setMessages(p => [...p, { role: 'assistant', content: fallbackMsg }])
     } finally {
       setLoading(false)
       inputRef.current?.focus()
