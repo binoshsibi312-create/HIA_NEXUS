@@ -169,7 +169,7 @@ export default function HomePage() {
             <span className="font-display text-base text-white tracking-widest">HIA NEXUS</span>
             <span className="text-slate-600 text-xs">— Healthcare Insurance Assistant</span>
           </div>
-          <p className="text-xs text-slate-600">Masters Research Project · React + Supabase + Gemini AI + XGBoost</p>
+          <p className="text-xs text-slate-600">© 2025 HIA NEXUS. All rights reserved.</p>
         </div>
       </footer>
     </div>

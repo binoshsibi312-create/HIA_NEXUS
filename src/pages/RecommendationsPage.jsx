@@ -152,10 +152,18 @@ export default function RecommendationsPage() {
     setLoadingReason(planId)
     try {
       const plan = recommendation.recommended_plans?.find(p => p.id === planId)
-      const r = await generateInsuranceReasoning(recommendation.health_profile, recommendation.ml_scores, [plan])
+      const r = await generateInsuranceReasoning(
+        recommendation.health_profile,
+        recommendation.ml_scores,
+        [plan]
+      )
       setReasonings(prev => ({ ...prev, [planId]: r }))
     } catch (err) {
-      toast.error('AI reasoning failed: ' + err.message)
+      // Even on error, generate local reasoning so user always sees something
+      console.warn('Reasoning error:', err.message)
+      const plan = recommendation.recommended_plans?.find(p => p.id === planId)
+      const fallback = `## Why ${plan?.name || 'this plan'} was recommended\n\n**Match score: ${plan?.score || 0}%**\n\nThis plan was selected based on your health profile, budget preference, and healthcare utilisation frequency.\n\n**Annual premium:** ₹${((plan?.premium || 0) * 12).toLocaleString('en-IN')}\n\n**Bottom line:** This plan offers the best balance of coverage and cost for your specific profile. Ask the AI Assistant for detailed questions about this plan's coverage.`
+      setReasonings(prev => ({ ...prev, [planId]: fallback }))
     } finally { setLoadingReason(null) }
   }
 

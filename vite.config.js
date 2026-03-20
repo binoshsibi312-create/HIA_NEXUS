@@ -3,10 +3,12 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const groqKey = env.VITE_GROQ_API_KEY
   const geminiKey = env.VITE_GEMINI_API_KEY
   const anthropicKey = env.VITE_ANTHROPIC_API_KEY
 
-  if (geminiKey) console.log('\n✅  Gemini API key loaded (free tier)\n')
+  if (groqKey) console.log('\n✅  Groq API key loaded — primary AI active\n')
+  else if (geminiKey) console.log('\n✅  Gemini API key loaded\n')
   else if (anthropicKey) console.log('\n✅  Anthropic API key loaded\n')
   else console.warn('\n⚠️  No AI API key found in .env\n')
 
@@ -15,19 +17,35 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       proxy: {
+        '/groq': {
+          target: 'https://api.groq.com',
+          changeOrigin: true,
+          secure: true,
+          rewrite: (path) => path.replace(/^\/groq/, ''),
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq) => {
+              proxyReq.setHeader('Authorization', `Bearer ${groqKey}`)
+              proxyReq.removeHeader('origin')
+              proxyReq.removeHeader('referer')
+              console.log('[groq] → proxying request')
+            })
+            proxy.on('proxyRes', (proxyRes) => {
+              console.log(`[groq] ← ${proxyRes.statusCode}`)
+            })
+            proxy.on('error', (err) => {
+              console.error('[groq] error:', err.message)
+            })
+          },
+        },
         '/gemini': {
           target: 'https://generativelanguage.googleapis.com',
           changeOrigin: true,
           secure: true,
           rewrite: (path) => path.replace(/^\/gemini/, ''),
           configure: (proxy) => {
-            proxy.on('proxyReq', (proxyReq, req) => {
+            proxy.on('proxyReq', (proxyReq) => {
               proxyReq.removeHeader('origin')
               proxyReq.removeHeader('referer')
-              console.log(`[gemini] → ${req.method} ${req.url?.split('?')[0].replace('/gemini','').slice(0,60)}`)
-            })
-            proxy.on('proxyRes', (proxyRes) => {
-              console.log(`[gemini] ← ${proxyRes.statusCode}`)
             })
             proxy.on('error', (err) => {
               console.error('[gemini] error:', err.message)
