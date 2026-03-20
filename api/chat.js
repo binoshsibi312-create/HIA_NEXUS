@@ -29,7 +29,7 @@ export default async function handler(req, res) {
           'Authorization': `Bearer ${GROQ_KEY}`,
         },
         body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
+          model: 'llama-3.1-8b-instant',
           messages: [{ role: 'system', content: systemPrompt }, ...messages],
           max_tokens: maxTokens,
           temperature: 0.4,
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     try {
       const lastMsg = messages[messages.length - 1]?.content || ''
       const geminiRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
