@@ -48,12 +48,12 @@ export default function ChatbotPage() {
     const next = [...messages, { role: 'user', content }]
     setMessages(next)
     setLoading(true)
-    await supabase.from('chat_messages').insert({ user_id: user.id, role: 'user', content }).catch(() => {})
+    try { await supabase.from('chat_messages').insert({ user_id: user.id, role: 'user', content }) } catch(_){}
     try {
       const reply = await chatWithAssistant(next, profile)
       if (reply) {
         setMessages(p => [...p, { role: 'assistant', content: reply }])
-        await supabase.from('chat_messages').insert({ user_id: user.id, role: 'assistant', content: reply }).catch(() => {})
+        try { await supabase.from('chat_messages').insert({ user_id: user.id, role: 'assistant', content: reply }) } catch(_){}
       } else {
         throw new Error('Empty response')
       }
