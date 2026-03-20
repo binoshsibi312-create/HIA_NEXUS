@@ -1,137 +1,163 @@
 import { Link } from 'react-router-dom'
-import { FileText, Brain, Shield, MessageSquare, Lock, CheckCircle, ArrowRight, Star, TrendingUp, Users, Zap } from 'lucide-react'
+import { FileText, Brain, Shield, MessageSquare, Lock, CheckCircle, ArrowRight, TrendingUp, Users, Zap, Star, Activity } from 'lucide-react'
 
 const features = [
-  { icon: FileText, title: 'Medical Document Analysis', desc: 'Upload lab reports, prescriptions, or discharge summaries. Our AI reads and understands your health history automatically.', color: 'text-teal-400', bg: 'bg-teal-500/10 border-teal-500/20' },
-  { icon: Brain, title: 'AI + ML Recommendation Engine', desc: 'An XGBoost model trained on 8,000 patient profiles combined with Gemini AI reasoning gives you hyper-personalised plan matches.', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-  { icon: MessageSquare, title: 'Smart Follow-up Questions', desc: '15 evidence-based insurance underwriting questions that refine your recommendation — covering budget, lifestyle, family, and medical needs.', color: 'text-teal-400', bg: 'bg-teal-500/10 border-teal-500/20' },
-  { icon: Shield, title: 'Personalised Plan Matching', desc: 'Get ranked insurance plans with clear explanations of why each plan fits your unique health and financial profile.', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-  { icon: Lock, title: 'Secure Medical Vault', desc: 'All medical documents encrypted and locked behind PIN and OTP-verified access. Only you can view your records.', color: 'text-rose-400', bg: 'bg-rose-500/10 border-rose-500/20' },
-  { icon: MessageSquare, title: 'AI Insurance Chatbot', desc: 'Ask anything about plans, premiums, coverage, or Section 80D benefits. Powered by Gemini with full knowledge of all plans.', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+  { icon: FileText,    title: 'Medical Document Analysis',     desc: 'Upload lab reports, prescriptions, discharge summaries. AI extracts your complete health picture automatically.', accent: 'amber' },
+  { icon: Brain,       title: 'AI + ML Recommendation Engine', desc: 'XGBoost model trained on 8,000 patient profiles combined with Groq AI reasoning delivers hyper-personalised plan matches.', accent: 'teal'  },
+  { icon: MessageSquare, title: '15 Smart Follow-up Questions', desc: 'Evidence-based insurance underwriting questions covering budget, lifestyle, family, and medical needs.', accent: 'amber' },
+  { icon: Shield,      title: 'Personalised Plan Matching',    desc: 'Ranked insurance plans with transparent AI reasoning — understand exactly why each plan fits your profile.', accent: 'teal'  },
+  { icon: Lock,        title: 'Secure Medical Vault',          desc: 'Documents encrypted at rest, accessible only via PIN and OTP. Your medical data never leaves your control.', accent: 'amber' },
+  { icon: MessageSquare, title: 'Insurance AI Chatbot',        desc: 'Ask anything — plan comparisons, coverage details, Section 80D benefits, or insurance terminology.', accent: 'teal'  },
 ]
 
 const steps = [
-  { num: '01', title: 'Create Your Account', desc: 'Register in under a minute. Your data is private, encrypted, and never shared.' },
-  { num: '02', title: 'Upload Medical Documents', desc: 'Add lab reports, prescriptions, or health summaries. Our AI extracts the relevant health data automatically.' },
-  { num: '03', title: 'Answer Smart Questions', desc: 'Go through 15 personalised questions about your family, budget, and healthcare needs. Takes about 3 minutes.' },
-  { num: '04', title: 'Receive Your Recommendation', desc: 'The ML model scores all plans and Gemini AI explains the reasoning. You get your perfect insurance match with full transparency.' },
+  { n: '01', title: 'Create Your Account',        desc: 'Register in under a minute. Your data is private, encrypted, and never shared with third parties.' },
+  { n: '02', title: 'Upload Medical Documents',   desc: 'Lab reports, prescriptions, discharge summaries. AI reads and builds your health profile automatically.' },
+  { n: '03', title: 'Answer Smart Questions',     desc: '15 personalised underwriting questions about your family, budget, and healthcare needs. About 3 minutes.' },
+  { n: '04', title: 'Get Your Recommendation',    desc: 'ML model scores all 8 plans. AI explains the reasoning. You get your perfect insurance match with full clarity.' },
 ]
 
 const plans = [
-  { name: 'Aarogya Essential', tier: 'Bronze', price: '₹4,500', desc: 'Basic individual coverage', color: 'border-slate-600' },
-  { name: 'Aarogya Plus', tier: 'Silver', price: '₹8,000', desc: 'Most popular plan', color: 'border-teal-500', highlight: true },
-  { name: 'Suraksha Premium', tier: 'Gold', price: '₹13,000', desc: 'Comprehensive coverage', color: 'border-amber-500' },
-  { name: 'Chikitsa Care', tier: 'Gold', price: '₹12,000', desc: 'For chronic conditions', color: 'border-rose-500' },
+  { name: 'Aarogya Essential', tier: 'Bronze',   price: '₹4,500' },
+  { name: 'Aarogya Plus',      tier: 'Silver',   price: '₹8,000',   hot: true },
+  { name: 'Suraksha Premium',  tier: 'Gold',     price: '₹13,000'  },
+  { name: 'Chikitsa Care',     tier: 'Chronic',  price: '₹12,000'  },
 ]
+
+const tierColor = { Bronze: 'text-amber-600', Silver: 'text-dim', Gold: 'text-amber-400', Chronic: 'text-rose-400', Platinum: 'text-sky-400' }
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-midnight">
-      {/* Hero */}
-      <section className="relative pt-28 pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 grid-bg" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-ink overflow-x-hidden">
+
+      {/* ── Hero ── */}
+      <section className="relative pt-32 pb-24 px-4">
+        <div className="absolute inset-0 bg-grid opacity-60" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px]
+          bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="relative max-w-5xl mx-auto text-center">
-          <div className="section-tag mb-6 animate-up delay-1">
-            <Zap size={12} /> AI-Powered Healthcare Insurance Intelligence
+          <div className="tag mb-8 anim-up d1">
+            <Zap size={11} /> AI-Powered Healthcare Insurance for India
           </div>
 
-          <h1 className="font-display text-6xl md:text-7xl lg:text-8xl text-white tracking-wider mb-6 animate-up delay-2 leading-none">
-            HIA <span className="text-teal-400">NEXUS</span>
+          <h1 className="font-display font-extrabold text-6xl md:text-7xl lg:text-[88px]
+            text-bright tracking-tight mb-6 anim-up d2 leading-none">
+            The Smarter Way<br />
+            to Choose <span className="text-amber-400">Health Insurance</span>
           </h1>
 
-          <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-3 animate-up delay-3 leading-relaxed">
-            India's intelligent healthcare insurance assistant. Upload your medical documents,
-            answer a few questions, and get a personalised insurance recommendation backed by AI and machine learning.
+          <p className="text-lg text-dim max-w-2xl mx-auto mb-4 anim-up d3 leading-relaxed font-body">
+            Upload your medical documents, answer 15 targeted questions, and receive a
+            personalised insurance recommendation backed by machine learning and AI reasoning.
           </p>
-          <p className="text-sm text-slate-500 mb-10 animate-up delay-3">
-            Includes Section 80D tax benefit guidance · IRDAI-aligned plan parameters · Indian Rupee pricing
+          <p className="text-sm text-muted mb-10 anim-up d3 font-body">
+            Section 80D tax guidance included · IRDAI-aligned plan parameters · All prices in ₹
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 animate-up delay-4">
-            <Link to="/auth?mode=register" className="btn-primary px-8 py-3.5 text-base">
-              Get Your Free Recommendation <ArrowRight size={16} />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14 anim-up d4">
+            <Link to="/auth?mode=register" className="btn-primary px-8 py-3.5 text-base shadow-glow-amber">
+              Start Free Analysis <ArrowRight size={16} />
             </Link>
             <a href="#how-it-works" className="btn-secondary px-8 py-3.5 text-base">
               See How It Works
             </a>
           </div>
 
-          {/* Trust indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-12 animate-up delay-4">
+          {/* Trust row */}
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 anim-up d5">
             {[
-              { icon: Users, text: 'Individual & Family Plans' },
-              { icon: Brain, text: 'AI + ML Powered' },
-              { icon: Shield, text: 'Encrypted Medical Vault' },
-              { icon: TrendingUp, text: 'Section 80D Benefits' },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-2 text-slate-500 text-sm">
-                <Icon size={14} className="text-teal-500" />
-                <span>{text}</span>
+              { icon: Users,      t: 'Individual & Family Plans' },
+              { icon: Brain,      t: 'AI + ML Powered'           },
+              { icon: Shield,     t: 'Encrypted Medical Vault'   },
+              { icon: TrendingUp, t: 'Section 80D Benefits'      },
+            ].map(({ icon: Icon, t }) => (
+              <div key={t} className="flex items-center gap-2 text-muted text-sm font-body">
+                <Icon size={13} className="text-amber-500" /> {t}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Plans preview */}
-      <section className="py-16 px-4 bg-navy/40">
+      {/* ── Plan preview strip ── */}
+      <section className="py-12 px-4 border-y border-border bg-surface/40">
         <div className="max-w-5xl mx-auto">
-          <p className="text-center text-slate-500 text-sm font-heading font-medium uppercase tracking-widest mb-8">Available Plans</p>
+          <p className="text-center text-xs font-heading font-semibold uppercase tracking-widest text-muted mb-8">
+            Available Insurance Plans
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {plans.map(({ name, tier, price, desc, color, highlight }) => (
-              <div key={name} className={`card border ${color} ${highlight ? 'bg-teal-500/5' : ''} text-center py-5`}>
-                <div className={`badge mx-auto mb-3 ${highlight ? 'bg-teal-500/20 text-teal-400' : 'bg-slate-700/50 text-slate-400'}`}>{tier}</div>
-                <p className="font-heading font-semibold text-white text-sm mb-1">{name}</p>
-                <p className="font-mono text-teal-400 font-medium text-base">{price}<span className="text-xs text-slate-500">/mo</span></p>
-                <p className="text-xs text-slate-500 mt-1">{desc}</p>
-                {highlight && <div className="flex items-center justify-center gap-1 mt-2"><Star size={10} className="text-amber-400 fill-amber-400" /><span className="text-xs text-amber-400">Most Popular</span></div>}
+            {plans.map(({ name, tier, price, hot }) => (
+              <div key={name} className={`card-sm text-center relative ${hot ? 'border-amber-500/30 bg-amber-500/5' : ''}`}>
+                {hot && (
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+                    <span className="badge-amber text-[10px] px-2 py-0.5 flex items-center gap-1">
+                      <Star size={8} className="fill-amber-400" /> Popular
+                    </span>
+                  </div>
+                )}
+                <p className={`text-[10px] font-heading font-semibold uppercase tracking-wider mb-2 ${tierColor[tier]}`}>{tier}</p>
+                <p className="font-heading font-bold text-bright text-sm leading-tight mb-1">{name}</p>
+                <p className="font-mono text-amber-400 font-medium text-base">{price}<span className="text-muted text-xs">/mo</span></p>
               </div>
             ))}
           </div>
-          <p className="text-center text-slate-500 text-xs mt-4">+ 4 more plans including family floaters and chronic care specialists</p>
+          <p className="text-center text-muted text-xs mt-4 font-body">
+            + 4 more plans including Suraksha Elite, Parivar Shield, Parivar Complete, Nivesh Health
+          </p>
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="py-20 px-4">
+      {/* ── Features ── */}
+      <section id="features" className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="section-tag mb-4 inline-flex">Platform Features</div>
-            <h2 className="font-display text-5xl text-white tracking-wider mb-4">Everything You Need</h2>
-            <p className="text-slate-400 max-w-xl mx-auto">A complete healthcare insurance intelligence platform — from document upload to personalised plan selection.</p>
+          <div className="text-center mb-16">
+            <div className="tag mb-5 inline-flex">Platform Features</div>
+            <h2 className="font-display font-extrabold text-5xl text-bright tracking-tight mb-4">
+              Everything in One Place
+            </h2>
+            <p className="text-dim max-w-xl mx-auto font-body">
+              From document upload to personalised plan selection — a complete healthcare insurance intelligence platform.
+            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map(({ icon: Icon, title, desc, color, bg }) => (
-              <div key={title} className="card-hover group">
-                <div className={`w-11 h-11 rounded-xl border ${bg} flex items-center justify-center mb-4`}>
-                  <Icon size={20} className={color} />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {features.map(({ icon: Icon, title, desc, accent }) => (
+              <div key={title} className="card group hover:border-amber-500/20 hover:bg-raised hover:-translate-y-0.5 transition-all duration-200">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 border ${
+                  accent === 'amber'
+                    ? 'bg-amber-500/10 border-amber-500/20'
+                    : 'bg-teal-500/10 border-teal-500/20'
+                }`}>
+                  <Icon size={18} className={accent === 'amber' ? 'text-amber-400' : 'text-teal-400'} />
                 </div>
-                <h3 className="font-heading font-semibold text-white mb-2">{title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+                <h3 className="font-heading font-bold text-bright text-base mb-2 leading-snug">{title}</h3>
+                <p className="text-dim text-sm font-body leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how-it-works" className="py-20 px-4 bg-navy/40">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="section-tag mb-4 inline-flex">The Process</div>
-            <h2 className="font-display text-5xl text-white tracking-wider">How It Works</h2>
+      {/* ── How it works ── */}
+      <section id="how-it-works" className="py-24 px-4 bg-surface/30">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="tag mb-5 inline-flex">The Process</div>
+            <h2 className="font-display font-extrabold text-5xl text-bright tracking-tight">How It Works</h2>
           </div>
-          <div className="space-y-4">
-            {steps.map(({ num, title, desc }, i) => (
-              <div key={num} className="flex gap-5 items-start card-hover group">
-                <div className="w-12 h-12 flex-shrink-0 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center group-hover:bg-teal-500/20 transition-colors">
-                  <span className="font-mono text-teal-400 font-medium text-xs">{num}</span>
+
+          <div className="space-y-3">
+            {steps.map(({ n, title, desc }) => (
+              <div key={n} className="card group hover:border-amber-500/20 hover:bg-raised transition-all duration-200 flex gap-5 items-start">
+                <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/20
+                  flex items-center justify-center flex-shrink-0
+                  group-hover:bg-amber-500/20 transition-colors">
+                  <span className="font-mono text-amber-400 text-xs font-medium">{n}</span>
                 </div>
-                <div className="pt-3">
-                  <h3 className="font-heading font-semibold text-white mb-1">{title}</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
+                <div className="pt-2.5">
+                  <h3 className="font-heading font-bold text-bright mb-1 text-base">{title}</h3>
+                  <p className="text-dim text-sm font-body leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -139,23 +165,30 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 px-4">
+      {/* ── CTA ── */}
+      <section className="py-24 px-4">
         <div className="max-w-2xl mx-auto">
-          <div className="card border-teal-500/20 bg-teal-500/5 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center mx-auto mb-5">
-              <Brain size={24} className="text-teal-400" />
+          <div className="card border-amber-500/20 bg-amber-500/5 text-center shadow-glow-amber">
+            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20
+              flex items-center justify-center mx-auto mb-6">
+              <Brain size={24} className="text-amber-400" />
             </div>
-            <h2 className="font-display text-4xl text-white tracking-wider mb-3">Find Your Plan Today</h2>
-            <p className="text-slate-400 mb-7">Get your personalised healthcare insurance recommendation in under 10 minutes. No agents, no jargon — just data-driven guidance.</p>
+            <h2 className="font-display font-extrabold text-4xl text-bright tracking-tight mb-3">
+              Find Your Plan Today
+            </h2>
+            <p className="text-dim mb-8 font-body max-w-md mx-auto">
+              Get your personalised insurance recommendation in under 10 minutes. Data-driven, transparent, and completely free.
+            </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link to="/auth?mode=register" className="btn-primary px-8"><Brain size={16} /> Start Free Analysis</Link>
-              <Link to="/auth" className="btn-secondary px-8">Sign In</Link>
+              <Link to="/auth?mode=register" className="btn-primary px-8 py-3 shadow-glow-amber">
+                <Brain size={15} /> Start Free Analysis
+              </Link>
+              <Link to="/auth" className="btn-secondary px-8 py-3">Sign In</Link>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-5 mt-7 pt-5 border-t border-slate-700/50">
+            <div className="flex flex-wrap items-center justify-center gap-5 mt-8 pt-6 border-t border-border/60">
               {['No credit card required', 'Section 80D guidance included', 'Your data stays private'].map(t => (
-                <span key={t} className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <CheckCircle size={11} className="text-teal-500" />{t}
+                <span key={t} className="flex items-center gap-1.5 text-xs text-muted font-body">
+                  <CheckCircle size={11} className="text-emerald-400" /> {t}
                 </span>
               ))}
             </div>
@@ -163,13 +196,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-800 py-8 px-4">
+      <footer className="border-t border-border py-8 px-4">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-display text-base text-white tracking-widest">HIA NEXUS</span>
-            <span className="text-slate-600 text-xs">— Healthcare Insurance Assistant</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded-md bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <Activity size={11} className="text-amber-400" />
+            </div>
+            <span className="font-display font-bold text-sm text-bright tracking-tight">HIA NEXUS</span>
+            <span className="text-muted text-xs font-body">— Healthcare Insurance Assistant</span>
           </div>
-          <p className="text-xs text-slate-600">© 2025 HIA NEXUS. All rights reserved.</p>
+          <p className="text-xs text-muted font-body">© 2025 HIA NEXUS. All rights reserved.</p>
         </div>
       </footer>
     </div>

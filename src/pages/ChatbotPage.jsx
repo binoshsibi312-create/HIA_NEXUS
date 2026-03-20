@@ -10,8 +10,8 @@ const SUGGESTIONS = [
   'What is the difference between individual and family floater plans?',
   'Which plan is best for someone with diabetes?',
   'How does Section 80D tax benefit work?',
-  'Tell me about the Chikitsa Care plan in detail',
-  'What does "sum insured" mean in health insurance?',
+  'Tell me about the Chikitsa Care plan',
+  'What does "sum insured" mean?',
   'Compare Aarogya Plus vs Suraksha Premium',
   'What is a waiting period for pre-existing conditions?',
   'How does cashless hospitalisation work?',
@@ -20,56 +20,42 @@ const SUGGESTIONS = [
 export default function ChatbotPage() {
   const { user } = useAuth()
   const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [userProfile, setUserProfile] = useState(null)
+  const [input, setInput]       = useState('')
+  const [loading, setLoading]   = useState(false)
+  const [profile, setProfile]   = useState(null)
   const bottomRef = useRef(null)
-  const inputRef = useRef(null)
+  const inputRef  = useRef(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
   useEffect(() => {
-    const load = async () => {
-      if (!user) return
-      const [histRes, profRes] = await Promise.all([
-        supabase.from('chat_messages').select('*').eq('user_id', user.id).order('created_at').limit(60),
-        supabase.from('health_questionnaire').select('answers').eq('user_id', user.id).order('completed_at', { ascending: false }).limit(1),
-      ])
-      if (histRes.data?.length) setMessages(histRes.data.map(m => ({ role: m.role, content: m.content })))
-      if (profRes.data?.[0]) setUserProfile(profRes.data[0].answers)
-    }
-    load()
+    if (!user) return
+    Promise.all([
+      supabase.from('chat_messages').select('*').eq('user_id', user.id).order('created_at').limit(60),
+      supabase.from('health_questionnaire').select('answers').eq('user_id', user.id).order('completed_at', { ascending: false }).limit(1),
+    ]).then(([hr, pr]) => {
+      if (hr.data?.length) setMessages(hr.data.map(m => ({ role: m.role, content: m.content })))
+      if (pr.data?.[0]) setProfile(pr.data[0].answers)
+    })
   }, [user])
 
-  const sendMessage = async (text) => {
+  const send = async (text) => {
     const content = (text || input).trim()
     if (!content || loading) return
     setInput('')
-    const newMessages = [...messages, { role: 'user', content }]
-    setMessages(newMessages)
+    const next = [...messages, { role: 'user', content }]
+    setMessages(next)
     setLoading(true)
-    await supabase.from('chat_messages').insert({ user_id: user.id, role: 'user', content })
+    await supabase.from('chat_messages').insert({ user_id: user.id, role: 'user', content }).catch(() => {})
     try {
-      const reply = await chatWithAssistant(newMessages, userProfile)
-      setMessages(prev => [...prev, { role: 'assistant', content: reply }])
-      await supabase.from('chat_messages').insert({ user_id: user.id, role: 'assistant', content: reply })
+      const reply = await chatWithAssistant(next, profile)
+      setMessages(p => [...p, { role: 'assistant', content: reply }])
+      await supabase.from('chat_messages').insert({ user_id: user.id, role: 'assistant', content: reply }).catch(() => {})
     } catch (err) {
-      console.error('Chat error full:', err)
-      const msg = err.message || 'Unknown error'
-      const isQuota = msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('resource_exhausted') || msg.toLowerCase().includes('429')
-      const isNetwork = msg.toLowerCase().includes('network') || msg.toLowerCase().includes('failed to fetch')
-      if (isQuota) {
-        const retryMsg = { role: 'assistant', content: "I've hit the free API rate limit momentarily. Please wait about **60 seconds** and try again. This is a Gemini free tier limit." }
-        setMessages(prev => [...prev, retryMsg])
-      } else if (isNetwork) {
-        toast.error('Network error — make sure the dev server is running and you restarted it after changing vite.config.js')
-        setMessages(prev => prev.slice(0, -1))
-      } else {
-        toast.error('Error: ' + msg, { duration: 8000 })
-        setMessages(prev => prev.slice(0, -1))
-      }
+      toast.error('Something went wrong. Try again.')
+      setMessages(p => p.slice(0, -1))
     } finally {
       setLoading(false)
       inputRef.current?.focus()
@@ -83,25 +69,27 @@ export default function ChatbotPage() {
   }
 
   return (
-    <div className="min-h-screen bg-midnight flex flex-col pt-16">
+    <div className="min-h-screen bg-ink flex flex-col pt-16">
+
       {/* Header */}
-      <div className="border-b border-slate-700/50 bg-navy/60 backdrop-blur-xl px-4 py-4 flex-shrink-0">
+      <div className="border-b border-border bg-deep/80 backdrop-blur-xl px-4 py-4 flex-shrink-0">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center">
-              <Bot size={18} className="text-teal-400" />
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20
+              flex items-center justify-center">
+              <Bot size={17} className="text-amber-400" />
             </div>
             <div>
-              <h1 className="font-heading font-semibold text-white text-sm">HIA NEXUS Assistant</h1>
+              <p className="font-heading font-bold text-bright text-sm">HIA NEXUS Assistant</p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs text-slate-500">Powered by Gemini AI · Indian insurance specialist</span>
+                <span className="text-xs text-muted font-body">Indian insurance specialist · Powered by Groq AI</span>
               </div>
             </div>
           </div>
           {messages.length > 0 && (
-            <button onClick={clearChat} className="btn-ghost text-xs flex items-center gap-1.5 text-slate-500">
-              <Trash2 size={12} /> Clear history
+            <button onClick={clearChat} className="btn-ghost text-xs text-muted">
+              <Trash2 size={12} /> Clear
             </button>
           )}
         </div>
@@ -110,19 +98,25 @@ export default function ChatbotPage() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-3xl mx-auto space-y-5">
+
           {messages.length === 0 ? (
             <div className="text-center py-10">
-              <div className="w-16 h-16 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center mx-auto mb-4">
-                <MessageSquare size={26} className="text-teal-400" />
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20
+                flex items-center justify-center mx-auto mb-5">
+                <MessageSquare size={26} className="text-amber-400" />
               </div>
-              <h2 className="font-heading font-semibold text-white text-lg mb-1">Ask Me Anything</h2>
-              <p className="text-slate-500 text-sm mb-8 max-w-md mx-auto">
-                I can help with plan comparisons, coverage questions, Section 80D benefits, and anything about HIA NEXUS.
+              <h2 className="font-display font-extrabold text-2xl text-bright tracking-tight mb-2">
+                Ask Me Anything
+              </h2>
+              <p className="text-muted text-sm font-body mb-8 max-w-md mx-auto">
+                Plan comparisons, coverage questions, Section 80D benefits, insurance terminology — I know it all.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left max-w-2xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-2xl mx-auto text-left">
                 {SUGGESTIONS.map(s => (
-                  <button key={s} onClick={() => sendMessage(s)}
-                    className="p-3 rounded-xl border border-slate-700/60 hover:border-teal-500/40 hover:bg-teal-500/5 text-sm text-slate-400 hover:text-slate-200 transition-all text-left font-body leading-snug">
+                  <button key={s} onClick={() => send(s)}
+                    className="p-3.5 rounded-xl border border-border text-sm text-dim font-body
+                      hover:border-amber-500/30 hover:bg-raised hover:text-soft
+                      transition-all duration-150 text-left leading-snug">
                     {s}
                   </button>
                 ))}
@@ -132,21 +126,26 @@ export default function ChatbotPage() {
             messages.map((msg, i) => (
               <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  msg.role === 'assistant' ? 'bg-teal-500/20 border border-teal-500/30' : 'bg-slate-700/60 border border-slate-600'
+                  msg.role === 'assistant'
+                    ? 'bg-amber-500/10 border border-amber-500/20'
+                    : 'bg-raised border border-border'
                 }`}>
-                  {msg.role === 'assistant' ? <Bot size={14} className="text-teal-400" /> : <User size={14} className="text-slate-400" />}
+                  {msg.role === 'assistant'
+                    ? <Bot  size={14} className="text-amber-400" />
+                    : <User size={14} className="text-dim" />
+                  }
                 </div>
-                <div className={`max-w-[78%] rounded-2xl px-4 py-3 text-sm ${
+                <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
                   msg.role === 'user'
-                    ? 'bg-teal-500 text-white rounded-tr-sm'
-                    : 'bg-slate-800/80 border border-slate-700/60 rounded-tl-sm text-slate-200'
+                    ? 'bg-amber-500 text-ink rounded-tr-sm font-body'
+                    : 'bg-card border border-border rounded-tl-sm'
                 }`}>
                   {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm prose-invert max-w-none [&>p]:mb-2 [&>ul]:mb-2 [&>ol]:mb-2 [&>h3]:text-white [&>h3]:font-heading [&>h3]:text-sm [&>strong]:text-white [&>p]:leading-relaxed">
+                    <div className="prose-chat">
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
                   ) : (
-                    <p className="leading-relaxed">{msg.content}</p>
+                    <p className="leading-relaxed font-medium">{msg.content}</p>
                   )}
                 </div>
               </div>
@@ -155,13 +154,16 @@ export default function ChatbotPage() {
 
           {loading && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center flex-shrink-0">
-                <Bot size={14} className="text-teal-400" />
+              <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20
+                flex items-center justify-center flex-shrink-0">
+                <Bot size={14} className="text-amber-400" />
               </div>
-              <div className="bg-slate-800/80 border border-slate-700/60 rounded-2xl rounded-tl-sm px-4 py-3.5">
+              <div className="bg-card border border-border rounded-2xl rounded-tl-sm px-4 py-3.5">
                 <div className="flex gap-1.5 items-center">
                   {[0,1,2].map(i => (
-                    <span key={i} className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-bounce" style={{ animationDelay: `${i*150}ms` }} />
+                    <span key={i}
+                      className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce"
+                      style={{ animationDelay: `${i*150}ms` }} />
                   ))}
                 </div>
               </div>
@@ -172,27 +174,29 @@ export default function ChatbotPage() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-slate-700/50 bg-navy/60 backdrop-blur-xl px-4 py-4 flex-shrink-0">
+      <div className="border-t border-border bg-deep/80 backdrop-blur-xl px-4 py-4 flex-shrink-0">
         <div className="max-w-3xl mx-auto">
           <div className="flex gap-3 items-end">
             <textarea
               ref={inputRef}
               value={input}
               onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
-              placeholder="Ask about insurance plans, coverage, premiums, or Section 80D benefits..."
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
+              placeholder="Ask about plans, premiums, Section 80D, or insurance concepts..."
               rows={1}
-              className="input-field resize-none flex-1 py-3 leading-relaxed"
+              className="input resize-none flex-1 py-3 leading-relaxed"
               style={{ minHeight: '48px', maxHeight: '120px' }}
             />
-            <button onClick={() => sendMessage()} disabled={!input.trim() || loading}
-              className="btn-primary p-3 flex-shrink-0 disabled:opacity-40">
+            <button onClick={() => send()} disabled={!input.trim() || loading}
+              className="btn-primary p-3 flex-shrink-0 disabled:opacity-40 shadow-glow-amber">
               {loading ? <Loader size={17} className="animate-spin" /> : <Send size={17} />}
             </button>
           </div>
-          <div className="flex items-center gap-1.5 mt-2.5 justify-center">
-            <Info size={10} className="text-slate-600" />
-            <p className="text-xs text-slate-600">For informational purposes only. Not financial or medical advice. Consult a licensed IRDAI broker for final decisions.</p>
+          <div className="flex items-center justify-center gap-1.5 mt-2.5">
+            <Info size={10} className="text-muted" />
+            <p className="text-xs text-muted font-body">
+              For informational purposes only. Consult a licensed IRDAI broker for final decisions.
+            </p>
           </div>
         </div>
       </div>
